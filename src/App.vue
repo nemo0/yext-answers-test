@@ -10,7 +10,7 @@
   >
     <div class="max-w-xs relative space-y-3">
       <label for="search" class="text-gray-900">
-        Type the name of a country to search
+        Type the name of a data to search
       </label>
 
       <input
@@ -22,7 +22,10 @@
       />
 
       <ul
-        v-if="searchCountries.length"
+        v-if="
+          result.verticalResults !== undefined &&
+          result.verticalResults[0].results.length
+        "
         class="
           w-full
           rounded
@@ -36,18 +39,17 @@
         "
       >
         <li class="px-1 pt-1 pb-2 font-bold border-b border-gray-200">
-          Showing {{ searchCountries.length }} of {{ countries.length }} results
+          Showing {{ result.verticalResults[0].results.length }}
         </li>
         <li
-          v-for="country in searchCountries"
-          :key="country.id"
-          @click="selectCountry(country.id)"
+          v-for="r in result.verticalResults[0].results"
+          :key="r.id"
+          @click="selectresult(r.id)"
           class="cursor-pointer hover:bg-gray-100 p-1"
         >
-          {{ country.name }}
+          {{ r.name }}
         </li>
       </ul>
-      <p>{{ searchCountries[0] }}</p>
       <p v-if="selectedCountry" class="text-lg pt-2 absolute">
         You have selected:
         <span class="font-semibold">{{ selectedCountry }}</span>
@@ -57,7 +59,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, watch } from "vue";
 import { provideCore } from "@yext/answers-core";
 
 const core = provideCore({
@@ -67,27 +69,20 @@ const core = provideCore({
   experienceVersion: "PRODUCTION",
 });
 
-console.log(import.meta.env);
-
 export default {
   setup() {
     let searchTerm = ref("");
+    let result = ref([]);
 
-    const searchCountries = computed(() => {
+    const searchResults = watch(async () => {
       if (searchTerm.value === "") {
         return [];
       }
-
-      return core
-        .universalSearch({
-          query: searchTerm.value,
-        })
-        .then((response) => {
-          console.log(response.verticalResults[0].results);
-          return response.verticalResults[0].results;
-        });
+      result.value = await core.universalSearch({
+        query: searchTerm.value,
+      });
     });
-    console.log(searchCountries);
+    console.log(result.value);
     const selectCountry = (country) => {
       selectedCountry.value = country;
       searchTerm.value = "";
@@ -97,7 +92,8 @@ export default {
 
     return {
       searchTerm,
-      searchCountries,
+      result,
+      searchResults,
       selectCountry,
       selectedCountry,
     };
