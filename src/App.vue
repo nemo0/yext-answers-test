@@ -1,16 +1,15 @@
 <template>
-  <div
-    class="
-      bg-gray-50
-      min-w-screen min-h-screen
-      flex
-      justify-center
-      items-center
-    "
-  >
-    <div class="max-w-xs relative space-y-3">
+  <div class="bg-gray-50 min-w-screen min-h-screen flex justify-center py-10">
+    <div class="max-w-xs relative space-y-3 text-center">
       <label for="search" class="text-gray-900">
-        Type the name of a data to search
+        Type the name of a data to search(examples
+        <a
+          href="https://jsonplaceholder.typicode.com/posts"
+          class="text-gray-500 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Here</a
+        >)
       </label>
 
       <input
@@ -20,7 +19,10 @@
         placeholder="Type here..."
         class="p-3 mb-0.5 w-full border border-gray-300 rounded"
       />
-
+      <div v-if="selectedResult !== undefined" class="text-lg pt-2">
+        You have selected: <br />
+        <p class="font-semibold">{{ selectedResult }}</p>
+      </div>
       <ul
         v-if="
           result.verticalResults !== undefined &&
@@ -44,22 +46,18 @@
         <li
           v-for="r in result.verticalResults[0].results"
           :key="r.id"
-          @click="selectresult(r.id)"
+          @click="selectResult(r.name)"
           class="cursor-pointer hover:bg-gray-100 p-1"
         >
           {{ r.name }}
         </li>
       </ul>
-      <p v-if="selectedCountry" class="text-lg pt-2 absolute">
-        You have selected:
-        <span class="font-semibold">{{ selectedCountry }}</span>
-      </p>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref, watchEffect } from "vue";
 import { provideCore } from "@yext/answers-core";
 
 const core = provideCore({
@@ -74,7 +72,7 @@ export default {
     let searchTerm = ref("");
     let result = ref([]);
 
-    const searchResults = watch(async () => {
+    const searchResults = watchEffect(async () => {
       if (searchTerm.value === "") {
         return [];
       }
@@ -82,20 +80,19 @@ export default {
         query: searchTerm.value,
       });
     });
-    console.log(result.value);
-    const selectCountry = (country) => {
-      selectedCountry.value = country;
+    const selectResult = (result) => {
+      selectedResult.value = result;
       searchTerm.value = "";
     };
 
-    let selectedCountry = ref("");
+    let selectedResult = ref("");
 
     return {
       searchTerm,
       result,
       searchResults,
-      selectCountry,
-      selectedCountry,
+      selectResult,
+      selectedResult,
     };
   },
 };
