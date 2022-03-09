@@ -1,10 +1,10 @@
 <template>
   <div>
-    <universal-search />
+    <universal-autocomplete />
   </div>
   <div class="flex">
     <div class="w-1/2">
-      <universal-autocomplete />
+      <universal-search />
     </div>
     <div class="w-1/2">
       <vertical-autocomplete />

@@ -68,9 +68,6 @@ export default {
       if (searchTerm.value === "") {
         return [];
       }
-      //   result.value = await core.universalSearch({
-      //     query: searchTerm.value,
-      //   });
       result.value = await core.universalAutocomplete({
         input: searchTerm.value,
       });
